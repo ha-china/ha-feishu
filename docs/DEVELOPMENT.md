@@ -72,6 +72,7 @@ Implemented artifacts:
 - `hacs.json`
 - Integration directory under `custom_components/feishu_bot`
 - `manifest.json` with version, docs, issue tracker, codeowner
+- Local brand assets in `custom_components/feishu_bot/brand/` (`icon/logo`, dark variants, and `@2x` variants)
 - Repository README and CI validation workflow (`.github/workflows/validate.yml`)
 
 Recommended follow-up:
