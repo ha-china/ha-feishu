@@ -68,8 +68,8 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
    - `App ID`（通常是 `cli_xxx`）
    - `App Secret`
 
-![创建应用](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step2-create-app.png)
-![获取凭据](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step3-credentials.png)
+![创建应用](docs/images/feishu/feishu-step2-create-app.png)
+![获取凭据](docs/images/feishu/feishu-step3-credentials.png)
 
 ### 2) 配置权限
 
@@ -107,13 +107,13 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
 }
 ```
 
-![配置权限](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step4-permissions.png)
+![配置权限](docs/images/feishu/feishu-step4-permissions.png)
 
 ### 3) 启用机器人能力
 
 在“应用能力”中启用 Bot，并设置机器人名称。
 
-![启用机器人能力](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step5-bot-capability.png)
+![启用机器人能力](docs/images/feishu/feishu-step5-bot-capability.png)
 
 ### 4) 配置事件订阅（WebSocket）
 
@@ -122,7 +122,7 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
 1. 选择“使用长连接接收事件（WebSocket）”
 2. 添加事件：`im.message.receive_v1`
 
-![事件订阅-WebSocket](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step6-event-subscription.png)
+![事件订阅-WebSocket](docs/images/feishu/feishu-step6-event-subscription.png)
 
 ### 5) 发布应用
 
