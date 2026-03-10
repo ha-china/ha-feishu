@@ -57,41 +57,81 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
 
 ## 飞书端操作步骤（WebSocket）
 
-以下流程参考（并适配）OpenClaw 的飞书配置文档：
+以下流程参考并适配自 OpenClaw 飞书文档：
 `https://docs.openclaw.ai/channels/feishu`
 
-1. 在飞书开放平台创建企业自建应用：
-   - `https://open.feishu.cn/app`
-2. 在“凭证与基础信息”复制：
-   - `App ID`
-   - `App Secret`
-3. 在“权限管理”添加机器人消息相关权限（至少确保可收消息和 `send_as_bot`）。
-4. 在“应用能力”启用机器人能力。
-5. 在“事件订阅”中选择：
-   - 使用长连接接收事件（WebSocket）
-   - 添加事件：`im.message.receive_v1`
-6. 发布应用版本并在企业内可用。
+### 1) 创建应用
 
-示例权限导入（可按需精简）：
+1. 打开飞书开放平台：`https://open.feishu.cn/app`
+2. 创建企业自建应用，填写应用名称与描述
+3. 在“凭证与基础信息”记录：
+   - `App ID`（通常是 `cli_xxx`）
+   - `App Secret`
+
+![创建应用](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step2-create-app.png)
+![获取凭据](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step3-credentials.png)
+
+### 2) 配置权限
+
+在“权限管理”中可以用“批量导入权限”，示例如下（来自参考文档，可按需精简）：
 
 ```json
 {
   "scopes": {
     "tenant": [
+      "aily:file:read",
+      "aily:file:write",
+      "application:application.app_message_stats.overview:readonly",
+      "application:application:self_manage",
+      "application:bot.menu:write",
+      "cardkit:card:read",
+      "cardkit:card:write",
+      "contact:user.employee_id:readonly",
+      "corehr:file:download",
+      "event:ip_list",
+      "im:chat.access_event.bot_p2p_chat:read",
+      "im:chat.members:bot_access",
+      "im:message",
+      "im:message.group_at_msg:readonly",
+      "im:message.p2p_msg:readonly",
       "im:message:readonly",
       "im:message:send_as_bot",
-      "im:chat.members:bot_access",
       "im:resource"
+    ],
+    "user": [
+      "aily:file:read",
+      "aily:file:write",
+      "im:chat.access_event.bot_p2p_chat:read"
     ]
   }
 }
 ```
 
-参考截图：
+![配置权限](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step4-permissions.png)
 
-![创建应用](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step2-create-app.png)
-![获取凭据](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step3-credentials.png)
+### 3) 启用机器人能力
+
+在“应用能力”中启用 Bot，并设置机器人名称。
+
+![启用机器人能力](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step5-bot-capability.png)
+
+### 4) 配置事件订阅（WebSocket）
+
+在“事件订阅”中：
+
+1. 选择“使用长连接接收事件（WebSocket）”
+2. 添加事件：`im.message.receive_v1`
+
 ![事件订阅-WebSocket](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step6-event-subscription.png)
+
+### 5) 发布应用
+
+在“版本管理与发布”中创建版本并发布，确保企业内可用。
+
+### 6) 回到 Home Assistant
+
+在 HA 中使用同一个 `App ID` 和 `App Secret` 完成集成配置。
+当 `sensor.feishu_bot_status` 显示 `connected` 即为连接成功。
 
 ## 命令示例
 
