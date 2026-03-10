@@ -27,17 +27,25 @@ class CommandRouter:
         self._reply_receive_id_type = reply_receive_id_type
 
     async def async_handle_message(self, message: IncomingMessage) -> None:
-        receive_id = message.chat_id or message.user_id
-        if not receive_id:
+        reply_target = self._resolve_reply_target(message)
+        if reply_target is None:
             _LOGGER.warning("Ignore message %s because receive_id missing", message.message_id)
             return
+        receive_id, receive_id_type = reply_target
+
+        _LOGGER.info(
+            "Inbound Feishu message id=%s target_type=%s text=%s",
+            message.message_id,
+            receive_id_type,
+            (message.text or "")[:120],
+        )
 
         try:
             command = self._parse_command(message.text)
         except ValueError as err:
             await self._api_client.async_send_safe_reply(
                 receive_id=receive_id,
-                receive_id_type=self._reply_receive_id_type,
+                receive_id_type=receive_id_type,
                 text=f"Invalid command: {err}",
             )
             return
@@ -56,9 +64,10 @@ class CommandRouter:
 
         await self._api_client.async_send_safe_reply(
             receive_id=receive_id,
-            receive_id_type=self._reply_receive_id_type,
+            receive_id_type=receive_id_type,
             text=result,
         )
+        _LOGGER.info("Reply sent for message id=%s", message.message_id)
 
     def _parse_command(self, text: str) -> Command | None:
         text = text.strip()
@@ -95,3 +104,16 @@ class CommandRouter:
             return Command(kind="service", target=service, payload=payload)
 
         raise ValueError("unsupported ha: command")
+
+    def _resolve_reply_target(self, message: IncomingMessage) -> tuple[str, str] | None:
+        """Resolve reply receive_id and receive_id_type from message context."""
+        if self._reply_receive_id_type == "open_id" and message.user_id:
+            return message.user_id, "open_id"
+
+        if message.chat_id:
+            return message.chat_id, "chat_id"
+
+        if message.user_id:
+            return message.user_id, "open_id"
+
+        return None
