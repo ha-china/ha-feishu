@@ -22,8 +22,16 @@
 
 ### HACS（推荐）
 
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository=ha-feishu&category=integration)
+
+一键安装链接：
+
+```text
+https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository=ha-feishu&category=integration
+```
+
 1. HACS -> Integrations -> Custom repositories
-2. 添加仓库 `https://github.com/djhui/ha-feishu`，类别选择 Integration
+2. 添加仓库 `https://github.com/ha-china/ha-feishu`，类别选择 Integration
 3. 搜索并安装 `Feishu Bot`
 4. 重启 Home Assistant
 
