@@ -47,12 +47,10 @@ Supported command grammar (v1):
 - `ha:state <entity_id>`
 - `ha:scene <scene_id>`
 
-Default allowed service domains:
+Default conversation behavior:
 
-- `light`
-- `switch`
-- `script`
-- `scene`
+- Any non-`ha:` text is delegated to Home Assistant conversation agent.
+- `agent_id` can be selected in config/options flow.
 
 ## 4. Quality Scale Mapping (Current)
 
@@ -88,6 +86,6 @@ Recommended follow-up:
 
 ## 6. Security Notes
 
-- Restrict allowed service domains in config options.
+- Prefer selecting a dedicated conversation `agent_id` for this channel.
 - Keep secrets in config entries; do not print them in logs.
 - Return concise errors to chat users; avoid leaking stack details.

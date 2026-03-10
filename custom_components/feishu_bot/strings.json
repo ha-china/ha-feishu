@@ -6,7 +6,8 @@
         "description": "Enter your Feishu app credentials.",
         "data": {
           "app_id": "App ID",
-          "app_secret": "App Secret"
+          "app_secret": "App Secret",
+          "agent_id": "Conversation agent"
         }
       }
     },
@@ -15,6 +16,16 @@
     },
     "abort": {
       "already_configured": "This Feishu app is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Feishu Bot options",
+        "data": {
+          "agent_id": "Conversation agent"
+        }
+      }
     }
   },
   "entity": {

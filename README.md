@@ -6,11 +6,11 @@
 
 - WebSocket 接收飞书机器人消息（`im.message.receive_v1`）
 - 默认将自然语言交给 Home Assistant `conversation` agent 处理并回复
+- 支持在集成选项中指定 `agent_id`（选择具体 conversation agent）
 - 兼容命令式控制 Home Assistant：
   - `ha:service <domain.service> {json}`
   - `ha:state <entity_id>`
   - `ha:scene <scene_id>`
-- 白名单服务域控制（默认 `light,switch,script,scene`）
 - 执行结果回传飞书会话
 - 提供诊断实体 `sensor.feishu_bot_status` 展示连接状态
 
@@ -53,7 +53,7 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
 
 本集成不提供 HTTP 回调能力，也不需要配置回调 token/encrypt key。
 
-为保持配置简单，当前默认使用内置安全白名单服务域：`light`、`switch`、`script`、`scene`。
+可在集成选项中选择 Home Assistant 的对话代理（`agent_id`）。
 
 ## 飞书端操作步骤（WebSocket）
 

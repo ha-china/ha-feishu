@@ -45,6 +45,9 @@ class CommandRouter:
         if command is None:
             return
 
+        if command.kind == "conversation":
+            command.payload["conversation_id"] = f"feishu:{receive_id}"
+
         try:
             result = await self._executor.async_execute(command)
         except Exception as err:  # noqa: BLE001

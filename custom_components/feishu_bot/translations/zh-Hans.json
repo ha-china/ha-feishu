@@ -6,7 +6,8 @@
         "description": "请输入飞书应用凭据。",
         "data": {
           "app_id": "App ID",
-          "app_secret": "App Secret"
+          "app_secret": "App Secret",
+          "agent_id": "对话代理"
         }
       }
     },
@@ -15,6 +16,16 @@
     },
     "abort": {
       "already_configured": "该飞书应用已配置"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "飞书机器人选项",
+        "data": {
+          "agent_id": "对话代理"
+        }
+      }
     }
   },
   "entity": {

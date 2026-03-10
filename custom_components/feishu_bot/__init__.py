@@ -16,11 +16,10 @@ from .const import (
     ATTR_RECEIVE_ID,
     ATTR_RECEIVE_ID_TYPE,
     ATTR_TEXT,
-    CONF_ALLOWED_DOMAINS,
+    CONF_AGENT_ID,
     CONF_APP_ID,
     CONF_APP_SECRET,
     CONF_REPLY_RECEIVE_ID_TYPE,
-    DEFAULT_ALLOWED_DOMAINS,
     DEFAULT_REPLY_RECEIVE_ID_TYPE,
     DOMAIN,
     SERVICE_SEND_TEXT,
@@ -53,7 +52,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: FeishuBotConfigEntry) -> bool:
     app_id = entry.data[CONF_APP_ID]
     app_secret = entry.data[CONF_APP_SECRET]
-    allowed_domains = set(entry.options.get(CONF_ALLOWED_DOMAINS, DEFAULT_ALLOWED_DOMAINS))
+    agent_id = entry.options.get(CONF_AGENT_ID, entry.data.get(CONF_AGENT_ID))
     reply_receive_id_type = entry.options.get(CONF_REPLY_RECEIVE_ID_TYPE, DEFAULT_REPLY_RECEIVE_ID_TYPE)
 
     api_client = FeishuApiClient(hass, app_id, app_secret)
@@ -62,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FeishuBotConfigEntry) ->
     except FeishuBotError as err:
         raise ConfigEntryNotReady(str(err)) from err
 
-    executor = HomeAssistantCommandExecutor(hass, allowed_domains)
+    executor = HomeAssistantCommandExecutor(hass, agent_id)
     router = CommandRouter(executor=executor, api_client=api_client, reply_receive_id_type=reply_receive_id_type)
 
     ws_client = FeishuWsClient(

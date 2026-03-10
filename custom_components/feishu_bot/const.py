@@ -6,10 +6,9 @@ DOMAIN = "feishu_bot"
 
 CONF_APP_ID = "app_id"
 CONF_APP_SECRET = "app_secret"
-CONF_ALLOWED_DOMAINS = "allowed_domains"
+CONF_AGENT_ID = "agent_id"
 CONF_REPLY_RECEIVE_ID_TYPE = "reply_receive_id_type"
 
-DEFAULT_ALLOWED_DOMAINS = ["light", "switch", "script", "scene"]
 DEFAULT_REPLY_RECEIVE_ID_TYPE = "chat_id"
 
 SERVICE_SEND_TEXT = "send_text"
