@@ -40,12 +40,30 @@ class FeishuWsClient:
         self._runner_task: asyncio.Task | None = None
         self._seen_message_ids: OrderedDict[str, None] = OrderedDict()
         self._seen_limit = 512
+        self._status = "disconnected"
+        self._status_listeners: set[Callable[[str], None]] = set()
+
+    @property
+    def status(self) -> str:
+        """Current websocket status."""
+        return self._status
+
+    def register_status_listener(self, listener: Callable[[str], None]) -> Callable[[], None]:
+        """Register status callback and return unsubscribe function."""
+        self._status_listeners.add(listener)
+        listener(self._status)
+
+        def _unsub() -> None:
+            self._status_listeners.discard(listener)
+
+        return _unsub
 
     async def async_start(self) -> None:
         """Start websocket background runner."""
         if self._runner_task is not None:
             return
 
+        self._set_status("connecting")
         self._runner_task = self._hass.async_create_background_task(
             self._async_run_forever(),
             "feishu_bot_ws_runner",
@@ -62,6 +80,7 @@ class FeishuWsClient:
         except asyncio.CancelledError:
             pass
         self._runner_task = None
+        self._set_status("disconnected")
 
     async def _async_run_forever(self) -> None:
         """Maintain websocket connection with reconnect."""
@@ -70,9 +89,11 @@ class FeishuWsClient:
                 token = await self._async_get_tenant_access_token()
                 ws_url = _WS_URL.format(token=token)
                 _LOGGER.info("Connecting to Feishu websocket")
+                self._set_status("connecting")
 
                 async with self._session.ws_connect(ws_url, heartbeat=30) as websocket:
                     _LOGGER.info("Feishu websocket connected")
+                    self._set_status("connected")
                     async for msg in websocket:
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             await self._async_handle_ws_text(msg.data)
@@ -82,12 +103,15 @@ class FeishuWsClient:
                             break
 
                 _LOGGER.warning("Feishu websocket disconnected, retrying in 5s")
+                self._set_status("disconnected")
             except asyncio.CancelledError:
                 raise
             except (FeishuAuthError, FeishuConnectionError, aiohttp.ClientError, TimeoutError) as err:
                 _LOGGER.warning("Feishu websocket error: %s", err)
+                self._set_status("error")
             except Exception as err:  # noqa: BLE001
                 _LOGGER.exception("Unexpected Feishu websocket error: %s", err)
+                self._set_status("error")
 
             await asyncio.sleep(5)
 
@@ -143,6 +167,16 @@ class FeishuWsClient:
             text=text,
         )
         await self._message_handler(incoming)
+
+    def _set_status(self, status: str) -> None:
+        if self._status == status:
+            return
+        self._status = status
+        for listener in tuple(self._status_listeners):
+            try:
+                listener(status)
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Failed to notify status listener")
 
 
 def _extract_text(content: object) -> str:

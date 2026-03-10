@@ -16,5 +16,12 @@
     "abort": {
       "already_configured": "This Feishu app is already configured"
     }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Connection status"
+      }
+    }
   }
 }

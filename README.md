@@ -5,12 +5,14 @@
 ## 功能
 
 - WebSocket 接收飞书机器人消息（`im.message.receive_v1`）
-- 命令式控制 Home Assistant：
+- 默认将自然语言交给 Home Assistant `conversation` agent 处理并回复
+- 兼容命令式控制 Home Assistant：
   - `ha:service <domain.service> {json}`
   - `ha:state <entity_id>`
   - `ha:scene <scene_id>`
 - 白名单服务域控制（默认 `light,switch,script,scene`）
 - 执行结果回传飞书会话
+- 提供诊断实体 `sensor.feishu_bot_status` 展示连接状态
 
 ## 安装
 
@@ -53,9 +55,52 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-china&repository
 
 为保持配置简单，当前默认使用内置安全白名单服务域：`light`、`switch`、`script`、`scene`。
 
+## 飞书端操作步骤（WebSocket）
+
+以下流程参考（并适配）OpenClaw 的飞书配置文档：
+`https://docs.openclaw.ai/channels/feishu`
+
+1. 在飞书开放平台创建企业自建应用：
+   - `https://open.feishu.cn/app`
+2. 在“凭证与基础信息”复制：
+   - `App ID`
+   - `App Secret`
+3. 在“权限管理”添加机器人消息相关权限（至少确保可收消息和 `send_as_bot`）。
+4. 在“应用能力”启用机器人能力。
+5. 在“事件订阅”中选择：
+   - 使用长连接接收事件（WebSocket）
+   - 添加事件：`im.message.receive_v1`
+6. 发布应用版本并在企业内可用。
+
+示例权限导入（可按需精简）：
+
+```json
+{
+  "scopes": {
+    "tenant": [
+      "im:message:readonly",
+      "im:message:send_as_bot",
+      "im:chat.members:bot_access",
+      "im:resource"
+    ]
+  }
+}
+```
+
+参考截图：
+
+![创建应用](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step2-create-app.png)
+![获取凭据](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step3-credentials.png)
+![事件订阅-WebSocket](https://mintcdn.com/clawdhub/6NERQ7Dymau_gJ4k/images/feishu-step6-event-subscription.png)
+
 ## 命令示例
 
 ```text
+打开客厅灯
+现在家里温度是多少
+把客厅灯调到暖光
+
+# 可选：仍支持显式 HA 命令
 ha:service light.turn_on {"entity_id":"light.living_room","brightness":180}
 ha:state sensor.living_room_temperature
 ha:scene scene.good_night

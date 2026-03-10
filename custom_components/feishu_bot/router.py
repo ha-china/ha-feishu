@@ -43,16 +43,6 @@ class CommandRouter:
             return
 
         if command is None:
-            await self._api_client.async_send_safe_reply(
-                receive_id=receive_id,
-                receive_id_type=self._reply_receive_id_type,
-                text=(
-                    "Unknown command. Supported:\n"
-                    "1) ha:service <domain.service> {json}\n"
-                    "2) ha:state <entity_id>\n"
-                    "3) ha:scene <scene_id>"
-                ),
-            )
             return
 
         try:
@@ -71,6 +61,9 @@ class CommandRouter:
         text = text.strip()
         if not text:
             return None
+
+        if not text.startswith("ha:"):
+            return Command(kind="conversation", target=text, payload={})
 
         if text.startswith("ha:state "):
             entity_id = text.removeprefix("ha:state ").strip()
@@ -98,4 +91,4 @@ class CommandRouter:
                     raise ValueError("JSON payload must be an object")
             return Command(kind="service", target=service, payload=payload)
 
-        return None
+        raise ValueError("unsupported ha: command")

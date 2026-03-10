@@ -6,6 +6,7 @@ import logging
 from typing import TypeAlias
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
@@ -34,6 +35,7 @@ from .router import CommandRouter
 _LOGGER = logging.getLogger(__name__)
 
 FeishuBotConfigEntry: TypeAlias = ConfigEntry[RuntimeData]
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 SERVICE_SEND_TEXT_SCHEMA = vol.Schema(
     {
@@ -72,6 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FeishuBotConfigEntry) ->
     await ws_client.async_start()
 
     entry.runtime_data = RuntimeData(ws_client=ws_client, api_client=api_client, message_handler=router.async_handle_message)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     if len(hass.config_entries.async_entries(DOMAIN)) == 1:
         _register_services(hass)
@@ -82,12 +85,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: FeishuBotConfigEntry) ->
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: FeishuBotConfigEntry) -> bool:
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     await entry.runtime_data.ws_client.async_stop()
 
     if len(hass.config_entries.async_entries(DOMAIN)) <= 1:
         hass.services.async_remove(DOMAIN, SERVICE_SEND_TEXT)
 
-    return True
+    return unload_ok
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: FeishuBotConfigEntry) -> None:

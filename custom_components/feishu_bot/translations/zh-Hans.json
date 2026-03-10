@@ -16,5 +16,12 @@
     "abort": {
       "already_configured": "该飞书应用已配置"
     }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "连接状态"
+      }
+    }
   }
 }
