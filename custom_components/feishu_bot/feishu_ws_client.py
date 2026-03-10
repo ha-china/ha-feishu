@@ -5,10 +5,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import threading
 from collections import OrderedDict
 from collections.abc import Awaitable, Callable
 
 import lark_oapi as lark
+import lark_oapi.ws.client as lark_ws_client
 from homeassistant.core import HomeAssistant
 
 from .exceptions import FeishuConnectionError
@@ -94,6 +96,14 @@ class FeishuWsClient:
             await asyncio.sleep(5)
 
     def _start_sync(self) -> None:
+        # lark_oapi.ws.client keeps a module-level loop reference.
+        # In Home Assistant, the main loop is already running, so we must
+        # replace it with a thread-local event loop in this worker thread.
+        if lark_ws_client.loop.is_running():
+            worker_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(worker_loop)
+            lark_ws_client.loop = worker_loop
+
         builder = lark.EventDispatcherHandler.builder("", "")
         event_handler = builder.register_p2_im_message_receive_v1(self._on_message_sync).build()
         self._client = lark.ws.Client(
@@ -162,7 +172,10 @@ class FeishuWsClient:
         self._status = status
         for listener in tuple(self._status_listeners):
             try:
-                listener(status)
+                if threading.current_thread() is threading.main_thread():
+                    listener(status)
+                else:
+                    self._hass.loop.call_soon_threadsafe(listener, status)
             except Exception:  # noqa: BLE001
                 _LOGGER.exception("Failed to notify status listener")
 
