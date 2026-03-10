@@ -105,7 +105,10 @@ class FeishuWsClient:
             lark_ws_client.loop = worker_loop
 
         builder = lark.EventDispatcherHandler.builder("", "")
-        event_handler = builder.register_p2_im_message_receive_v1(self._on_message_sync).build()
+        event_handler = builder.register_p2_customized_event(
+            "im.message.receive_v1",
+            self._on_custom_message_sync,
+        ).build()
         self._client = lark.ws.Client(
             self._app_id,
             self._app_secret,
@@ -123,7 +126,61 @@ class FeishuWsClient:
             if callable(stop):
                 stop()
 
+    def _on_custom_message_sync(self, data: object) -> None:
+        _LOGGER.debug("Feishu custom event received: %s", type(data).__name__)
+
+        event = getattr(data, "event", None)
+        if not isinstance(event, dict):
+            _LOGGER.debug("Ignore event without dict payload: %s", data)
+            return
+
+        message = event.get("message") or {}
+        sender = event.get("sender") or {}
+
+        message_id = str(message.get("message_id") or "")
+        if not message_id:
+            _LOGGER.debug("Ignore event without message_id: %s", event)
+            return
+
+        if message_id in self._seen_message_ids:
+            return
+
+        self._seen_message_ids[message_id] = None
+        self._seen_message_ids.move_to_end(message_id)
+        if len(self._seen_message_ids) > self._seen_limit:
+            self._seen_message_ids.popitem(last=False)
+
+        content_raw = str(message.get("content") or "")
+        text = _extract_text(content_raw)
+        chat_id = message.get("chat_id")
+        sender_id_obj = sender.get("sender_id") if isinstance(sender, dict) else None
+        sender_id = None
+        if isinstance(sender_id_obj, dict):
+            sender_id = (
+                sender_id_obj.get("open_id")
+                or sender_id_obj.get("user_id")
+                or sender_id_obj.get("union_id")
+            )
+
+        incoming = IncomingMessage(
+            message_id=message_id,
+            chat_id=chat_id,
+            user_id=sender_id,
+            text=text,
+        )
+
+        _LOGGER.info(
+            "Feishu event accepted id=%s chat_id=%s text=%s",
+            message_id,
+            chat_id,
+            text[:120],
+        )
+
+        future = asyncio.run_coroutine_threadsafe(self._message_handler(incoming), self._hass.loop)
+        future.add_done_callback(_log_future_exception)
+
     def _on_message_sync(self, data: object) -> None:
+        # Kept for backward compatibility; no longer registered.
         event = getattr(data, "event", None)
         if event is None:
             return
