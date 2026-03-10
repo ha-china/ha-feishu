@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Feishu Bot",
+        "description": "Enter your Feishu app credentials.",
+        "data": {
+          "app_id": "App ID",
+          "app_secret": "App Secret"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to Feishu, please check credentials"
+    },
+    "abort": {
+      "already_configured": "This Feishu app is already configured"
+    }
+  }
+}

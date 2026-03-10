@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "连接飞书机器人",
+        "description": "请输入飞书应用凭据。",
+        "data": {
+          "app_id": "App ID",
+          "app_secret": "App Secret"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "无法连接飞书，请检查配置"
+    },
+    "abort": {
+      "already_configured": "该飞书应用已配置"
+    }
+  }
+}
