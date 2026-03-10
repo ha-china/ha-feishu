@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
@@ -13,6 +15,8 @@ from .const import (
 )
 from .exceptions import FeishuBotError
 from .feishu_api import FeishuApiClient
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _schema_with_defaults(user_input: dict | None = None) -> vol.Schema:
@@ -42,6 +46,9 @@ class FeishuBotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 await _async_validate_input(self.hass, data)
             except FeishuBotError:
+                errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected validation failure")
                 errors["base"] = "cannot_connect"
             else:
                 await self.async_set_unique_id(data[CONF_APP_ID])

@@ -13,6 +13,11 @@ executes selected Home Assistant commands, and replies back to Feishu.
 4. Router parses command and dispatches to executor.
 5. Integration sends result to Feishu using `im/v1/message/create`.
 
+Connection strategy note:
+
+- We reference the openclaw-feishu approach for setup validation: during config flow we only verify `app_id/app_secret` by requesting tenant access token.
+- We do not block setup on additional websocket endpoint pre-checks, reducing false `cannot_connect` errors caused by non-standard gateway responses.
+
 Important network note:
 
 - This websocket mode is outbound from Home Assistant to Feishu.
