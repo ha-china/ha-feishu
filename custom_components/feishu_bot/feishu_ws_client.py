@@ -108,6 +108,9 @@ class FeishuWsClient:
         event_handler = builder.register_p2_customized_event(
             "im.message.receive_v1",
             self._on_custom_message_sync,
+        ).register_p2_customized_event(
+            "im.message.message_read_v1",
+            self._on_ignored_event_sync,
         ).build()
         self._client = lark.ws.Client(
             self._app_id,
@@ -221,6 +224,10 @@ class FeishuWsClient:
 
         future = asyncio.run_coroutine_threadsafe(self._message_handler(incoming), self._hass.loop)
         future.add_done_callback(_log_future_exception)
+
+    def _on_ignored_event_sync(self, data: object) -> None:
+        """Ignore noisy non-message events to avoid SDK processor errors."""
+        _LOGGER.debug("Feishu ignored event received: %s", type(data).__name__)
 
     def _set_status(self, status: str) -> None:
         if self._status == status:

@@ -61,13 +61,17 @@ class HomeAssistantCommandExecutor:
     async def _async_execute_conversation(self, command: Command) -> str:
         """Delegate free text to Home Assistant conversation agent."""
         conversation_id = str(command.payload.get("conversation_id") or "")
-        reply = await _ask_home_assistant(
-            self._hass,
-            command.target,
-            conversation_id=conversation_id,
-            agent_id=self._agent_id,
-        )
-        return reply or "对话已处理，但没有可显示的回复"
+        try:
+            reply = await _ask_home_assistant(
+                self._hass,
+                command.target,
+                conversation_id=conversation_id,
+                agent_id=self._agent_id,
+            )
+        except Exception as err:  # noqa: BLE001
+            return f"对话引擎执行失败: {type(err).__name__}"
+
+        return reply or "暂时无法生成回复，请检查当前 conversation agent 配置。"
 
 
 async def _ask_home_assistant(

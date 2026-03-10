@@ -149,5 +149,5 @@ ha:scene scene.good_night
 ## 注意事项
 
 - 建议在飞书应用权限里只开通必要权限。
-- 建议限制允许调用的 HA 服务域，避免误操作。
+- 如果自然语言无回复或意图异常，请在集成选项中切换 `Conversation agent`（优先测试 HA 内置 agent）。
 - 该版本为首版，后续将补充更完整的 diagnostics 与 repair 流程。
