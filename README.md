@@ -1,3 +1,7 @@
+# 项目已迁移
+## 此项目已经停止更新并合并至 [cn_im_hub](https://github.com/ha-china/cn_im_hub)
+
+
 # Home Assistant Feishu Bot Integration
 
 通过飞书官方 WebSocket 通道接收机器人消息，并将命令映射到 Home Assistant 服务调用。
